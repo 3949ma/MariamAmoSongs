@@ -36,16 +36,10 @@ def fix_arabic(text):
     return get_display(arabic_reshaper.reshape(str(text)))
 
 
+# استخدام خط النظام الافتراضي مباشرة لتفادي مشاكل التحميل
 FONT_NAME = "Roboto"
-
-try:
-    LabelBase.register(
-        name="myfont",
-        fn_regular="myfont.ttf"
-    )
-    FONT_NAME = "myfont"
-except Exception:
-    pass
+# الاعتماد على خط النظام الافتراضي مباشرة وتجاوز كتلة التسجيل
+FONT_NAME = "Roboto"
     
 
 class SplashScreen(Screen):
@@ -70,8 +64,9 @@ class DeveloperScreen(Screen):
 
 class NaderKhadrApp(MDApp):
 
-    app_title = StringProperty(fix_arabic("موسوعة الأغاني السودانية"))
-    current_song_title = StringProperty(fix_arabic("اختر أغنية"))
+    # تعريف المتغيرات كنصوص عادية، وسيتم تشفيرها باللغة العربية داخل دالة build الآمنة
+    app_title = StringProperty("")
+    current_song_title = StringProperty("")
     current_lyrics = StringProperty("")
     current_poster = StringProperty("default_poster.png")
 
@@ -92,6 +87,10 @@ class NaderKhadrApp(MDApp):
     is_player_ready = BooleanProperty(False)
 
     def build(self):
+        # تطبيق دالة fix_arabic هنا بشكل آمن تماماً بعد تهيئة التطبيق
+        self.app_title = fix_arabic("موسوعة الأغاني السودانية")
+        self.current_song_title = fix_arabic("اختر أغنية")
+
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Blue"
 
@@ -148,7 +147,6 @@ class NaderKhadrApp(MDApp):
                 "fav": False,
             },
         ]
-
         self.displayed_songs = self.songs_list.copy()
 
         self.load_songs_menu()
@@ -184,6 +182,7 @@ class NaderKhadrApp(MDApp):
             OneLineAvatarIconListItem,
             IconRightWidget,
         )
+        from functools import partial  # استيراد أداة الربط الصحيح
 
         container = self.root.get_screen(
             "list_screen"
@@ -201,9 +200,9 @@ class NaderKhadrApp(MDApp):
                 IconRightWidget(icon="music-circle")
             )
 
+            # الربط الآمن لكل أغنية لمنع التكرار والخلط
             item.bind(
-                on_release=lambda x, t=song["title"]:
-                self.select_song_by_title(t)
+                on_release=partial(lambda title, instance: self.select_song_by_title(title), song["title"])
             )
 
             container.add_widget(item)
@@ -366,6 +365,7 @@ class NaderKhadrApp(MDApp):
             OneLineAvatarIconListItem,
             IconRightWidget,
         )
+        from functools import partial
 
         container = self.root.get_screen(
             "favorite_screen"
@@ -389,9 +389,9 @@ class NaderKhadrApp(MDApp):
                 IconRightWidget(icon="heart")
             )
 
+            # تطبيق الربط الآمن في قائمة المفضلة أيضاً
             item.bind(
-                on_release=lambda x, t=song["title"]:
-                self.select_song_by_title(t)
+                on_release=partial(lambda title, instance: self.select_song_by_title(title), song["title"])
             )
 
             container.add_widget(item)
