@@ -30,6 +30,9 @@ android.minapi = 23
 
 android.ndk = 25b
 
+p4a.bootstrap = sdl2
+p4a.branch = master
+
 android.archs = arm64-v8a,armeabi-v7a
 
 android.accept_sdk_license = True
@@ -37,9 +40,5 @@ android.accept_sdk_license = True
 android.enable_androidx = True
 
 log_level = 2
-
-p4a.branch = 2024.01.21
-
-p4a.fork = kivy
 
 warn_on_root = 0
