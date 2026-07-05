@@ -39,35 +39,19 @@ jobs:
       - name: Install Buildozer and Toolchain Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config libltdl-dev zip unzip openjdk-17-jdk wget
+          sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config libltdl-dev zip unzip openjdk-17-jdk
           pip install --upgrade pip
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. إعداد الـ SDK يدوياً وتشغيل البناء لتفادي مشكلة sdkmanager الكلاسيكية
+      # 6. تشغيل البناء مع تفعيل الموافقة التلقائية على الرخص عبر المتغير البيئي الصريح
       - name: Build with Buildozer
         run: |
-          # إنشاء هيكل المجلدات الحديث الذي يتوقعه بيلدوزر وأدوات أندرويد
-          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
-          
-          # تحميل أدوات السطر البرمجي الرسمية من جوجل (الإصدار المستقر والمناسب للرخص)
-          wget https://google.com -O cmdline-tools.zip
-          unzip -q cmdline-tools.zip
-          
-          # نقل الملفات المستخرجة إلى المسار المتوافق
-          mv cmdline-tools/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/
-          rm -rf cmdline-tools cmdline-tools.zip
-          
-          # الموافقة المسبقة على الرخص داخل المجلد الذي أنشأناه يدوياً
-          yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/home/runner/.buildozer/android/platform/android-sdk || true
-          
-          # عمل اختصار "Symlink" للمسار القديم لخدع بيلدوزر إذا بحث في المجلد القديم tools/bin
-          mkdir -p ~/.buildozer/android/platform/android-sdk/tools
-          ln -s ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin ~/.buildozer/android/platform/android-sdk/tools/bin
-
-          # البدء في تشغيل البناء
+          # هذا المتغير البيئي يكفي تماماً مع API 34 ليتخطى بيلدوزر رخص أندرويد تلقائياً دون أي تدخل أو أدوات خارجية
+          export ANDROID_API_ACCEPT_LICENSES=1
           export P4A_no_test_compile=1
           export P4A_QUIET=1
+          
           buildozer -v android debug
 
       # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
