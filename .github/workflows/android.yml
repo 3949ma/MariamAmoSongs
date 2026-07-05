@@ -13,6 +13,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 1. تنظيف مساحة القرص بالكامل لتفادي نفاد الذاكرة في حاوية الخادم
       - name: Free Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -21,26 +22,29 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
+      # 2. تهيئة إصدار بايثون الخاص بنظام التجميع الرئيسي
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # تم تحديث هذه الخطوة لضمان التثبيت الكامل والتحديث الجذري للأدوات الأساسية
+      # 3. تثبيت أدوات التجميع الكاملة وحل مشكلة الماكرو والـ Autotools المفقودة
       - name: Install Buildozer and Toolchain Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config
-          sudo apt-get install -y libltdl-dev
+          sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config libltdl-dev
           pip install --upgrade pip
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
+      # 4. تشغيل بناء التطبيق مع حظر ملفات الاختبار واللغات الإضافية لتوفير الوقت
       - name: Build with Buildozer
         run: |
           export P4A_no_test_compile=1
+          export P4A_QUIET=1
           buildozer -v android debug
 
+      # 5. تصدير ملف الـ APK النهائي وحفظه في الموقع لتتمكن من تحميله مباشرة
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
