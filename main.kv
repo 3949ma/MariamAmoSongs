@@ -12,7 +12,6 @@ MDScreenManager:
             MDLabel:
                 text: app.app_title
                 halign: "center"
-                font_name: "myfont"
                 font_style: "H5"
                 pos_hint: {"center_x": .5, "center_y": .55}
 
@@ -35,7 +34,6 @@ MDScreenManager:
         name: "developer_screen"
         
         
-        
 <ListScreen>:
 
     MDBoxLayout:
@@ -54,7 +52,6 @@ MDScreenManager:
         MDTextField:
             hint_text: "ابحث عن أغنية..."
             mode: "rectangle"
-            font_name: "myfont"
             on_text: app.filter_songs(self.text)
 
         ScrollView:
@@ -85,7 +82,6 @@ MDScreenManager:
 
         MDLabel:
             text: app.smart_mood_tag
-            font_name: "myfont"
             halign: "center"
 
         MDSlider:
@@ -99,7 +95,6 @@ MDScreenManager:
         MDLabel:
             text: app.time_label
             halign: "center"
-            font_name: "myfont"
 
         MDBoxLayout:
             adaptive_height: True
@@ -127,7 +122,6 @@ MDScreenManager:
                 icon: "repeat"
                 on_release: app.toggle_repeat()
 
-
         MDCard:
             orientation: "vertical"
             padding: "12dp"
@@ -138,15 +132,12 @@ MDScreenManager:
 
             MDLabel:
                 text: app.current_lyrics
-                font_name: "myfont"
                 halign: "center"
                 adaptive_height: True
                 text_size: self.width, None
 
-
         MDRaisedButton:
             text: "إضافة / إزالة من المفضلة"
-            font_name: "myfont"
             pos_hint: {"center_x": .5}
             on_release: app.toggle_favorite()
 
