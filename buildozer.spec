@@ -9,7 +9,7 @@ source.include_exts = py,kv,png,jpg,jpeg,ttf,mp3
 
 version = 1.0
 
-requirements = hostpython3==3.11.9,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
+requirements = python3==3.11.9,hostpython3==3.11.9,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
 
 orientation = portrait
 fullscreen = 0
