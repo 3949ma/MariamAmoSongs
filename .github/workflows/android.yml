@@ -13,7 +13,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # خطوة سحرية لتنظيف مساحة القرص بالكامل قبل البدء
       - name: Free Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -27,18 +26,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Buildozer and Dependencies
+      # تم تحديث هذه الخطوة لضمان التثبيت الكامل والتحديث الجذري للأدوات الأساسية
+      - name: Install Buildozer and Toolchain Dependencies
         run: |
           sudo apt-get update
-          # تثبيت الأدوات البرمجية الكاملة للمترجمات لحل مشكلة الماكرو المفقود
           sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config
+          sudo apt-get install -y libltdl-dev
           pip install --upgrade pip
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
-           
+
       - name: Build with Buildozer
         run: |
-          # إجبار التجميع على تخطي ملفات الاختبارات غير الضرورية تماماً لتوفير الوقت
           export P4A_no_test_compile=1
           buildozer -v android debug
 
