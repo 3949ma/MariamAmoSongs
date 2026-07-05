@@ -109,7 +109,7 @@ class NaderKhadrApp(MDApp):
         self.songs_list = [
             {
                 "title": "دالدومينق كو تراث دارفور",
-                "file": "Amo_songs/50.mp3",
+                "file": "50.mp3",
                 "poster": "default_poster.png",
                 "lyrics": "دالدومينق كو",
                 "mood": "تراث أصيل",
@@ -117,7 +117,7 @@ class NaderKhadrApp(MDApp):
             },
             {
                 "title": "شرطاي سكيو",
-                "file": "Amo_songs/51.mp3",
+                "file": "51.mp3",
                 "poster": "default_poster.png",
                 "lyrics": "شرطاي سكيو",
                 "mood": "تراث أصيل",
@@ -125,7 +125,7 @@ class NaderKhadrApp(MDApp):
             },
             {
                 "title": "كيلمانقا بقي",
-                "file": "Amo_songs/52.mp3",
+                "file": "52.mp3",
                 "poster": "default_poster.png",
                 "lyrics": "كيلمانقا بقي",
                 "mood": "تراث أصيل",
@@ -133,7 +133,7 @@ class NaderKhadrApp(MDApp):
             },
             {
                 "title": "ناس دارفور كفاية المعاناة",
-                "file": "Amo_songs/53.mp3",
+                "file": "53.mp3",
                 "poster": "default_poster.png",
                 "lyrics": "ناس دارفور كفاية المعاناة",
                 "mood": "رسالة إنسانية",
@@ -141,7 +141,7 @@ class NaderKhadrApp(MDApp):
             },
             {
                 "title": "من أعلى مكان شفت أبعد مكان",
-                "file": "Amo_songs/54.mp3",
+                "file": "54.mp3",
                 "poster": "default_poster.png",
                 "lyrics": "من أعلى مكان شفت أبعد مكان",
                 "mood": "روائع مريم أمو",
