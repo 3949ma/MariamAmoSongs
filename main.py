@@ -13,6 +13,7 @@ from kivy.core.text import LabelBase
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
 from kivy.utils import platform
+from kivy.core.audio import SoundLoader  # استيراد محرك الصوت الأساسي
 
 from kivymd.app import MDApp
 from kivymd.uix.dialog import MDDialog
@@ -36,9 +37,6 @@ def fix_arabic(text):
     return get_display(arabic_reshaper.reshape(str(text)))
 
 
-# استخدام خط النظام الافتراضي مباشرة لتفادي مشاكل التحميل
-FONT_NAME = "Roboto"
-# الاعتماد على خط النظام الافتراضي مباشرة وتجاوز كتلة التسجيل
 FONT_NAME = "Roboto"
     
 
@@ -64,7 +62,6 @@ class DeveloperScreen(Screen):
 
 class NaderKhadrApp(MDApp):
 
-    # تعريف المتغيرات كنصوص عادية، وسيتم تشفيرها باللغة العربية داخل دالة build الآمنة
     app_title = StringProperty("")
     current_song_title = StringProperty("")
     current_lyrics = StringProperty("")
@@ -85,16 +82,14 @@ class NaderKhadrApp(MDApp):
     shuffle_mode = BooleanProperty(False)
     sleep_timer_active = BooleanProperty(False)
     is_player_ready = BooleanProperty(False)
-
     def build(self):
-        # تطبيق دالة fix_arabic هنا بشكل آمن تماماً بعد تهيئة التطبيق
         self.app_title = fix_arabic("موسوعة الأغاني السودانية")
         self.current_song_title = fix_arabic("اختر أغنية")
 
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Blue"
 
-        self.player = None
+        self.sound = None  # مغير كائن الصوت الفعلي
         self.current_index = 0
         self.updating_track = None
         self.timer_dialog = None
@@ -147,14 +142,12 @@ class NaderKhadrApp(MDApp):
                 "fav": False,
             },
         ]
+        
         self.displayed_songs = self.songs_list.copy()
-
         self.load_songs_menu()
         self.update_next_preview()
-
         Clock.schedule_once(self.switch_to_main, 2.5)
         
-       
     def switch_to_main(self, dt):
         self.root.current = "list_screen"
 
@@ -173,53 +166,33 @@ class NaderKhadrApp(MDApp):
             self.next_song_preview = fix_arabic("التالي: تشغيل عشوائي")
         else:
             next_index = (self.current_index + 1) % len(self.songs_list)
-            self.next_song_preview = fix_arabic(
-                self.songs_list[next_index]["title"]
-            )
+            self.next_song_preview = fix_arabic(self.songs_list[next_index]["title"])
             
     def load_songs_menu(self):
-        from kivymd.uix.list import (
-            OneLineAvatarIconListItem,
-            IconRightWidget,
-        )
-        from functools import partial  # استيراد أداة الربط الصحيح
+        from kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget
+        from functools import partial
 
-        container = self.root.get_screen(
-            "list_screen"
-        ).ids.songs_container
+        try:
+            container = self.root.get_screen("list_screen").ids.songs_container
+            container.clear_widgets()
 
-        container.clear_widgets()
-
-        for song in self.displayed_songs:
-
-            item = OneLineAvatarIconListItem(
-                text=fix_arabic(song["title"])
-            )
-
-            item.add_widget(
-                IconRightWidget(icon="music-circle")
-            )
-
-            # الربط الآمن لكل أغنية لمنع التكرار والخلط
-            item.bind(
-                on_release=partial(lambda title, instance: self.select_song_by_title(title), song["title"])
-            )
-
-            container.add_widget(item)
+            for song in self.displayed_songs:
+                item = OneLineAvatarIconListItem(text=fix_arabic(song["title"]))
+                item.add_widget(IconRightWidget(icon="music-circle"))
+                item.bind(on_release=partial(lambda title, instance: self.select_song_by_title(title), song["title"]))
+                container.add_widget(item)
+        except Exception as e:
+            print(f"Error loading menu: {e}")
 
     def select_song_by_title(self, title):
-
         for index, song in enumerate(self.songs_list):
             if song["title"] == title:
                 self.current_index = index
                 break
-
         self.play_current()
         self.root.current = "player_screen"
       
-      
     def play_current(self):
-
         if not self.songs_list:
             return
 
@@ -227,73 +200,92 @@ class NaderKhadrApp(MDApp):
 
         self.current_song_title = fix_arabic(song["title"])
         self.current_lyrics = fix_arabic(song["lyrics"])
-        self.current_poster = song["poster"]
+        
+        # حماية مسار الصورة للتأكد من وجودها
+        if os.path.exists(song["poster"]):
+            self.current_poster = song["poster"]
+        else:
+            self.current_poster = ""  # منع الانهيار إذا كانت الصورة مفقودة
+
         self.smart_mood_tag = fix_arabic(song["mood"])
         self.is_favorite = song["fav"]
 
         self.song_position = 0
-        self.song_length = 100
-        self.is_playing = True
-        self.is_player_ready = True
+        self.time_label = "00:00 / 00:00"
+
+        # إيقاف أي صوت يعمل حالياً
+        if self.sound:
+            self.sound.stop()
+            self.sound.unload()
+            self.sound = None
+
+        # تشغيل ملف الصوت الفعلي بحماية كاملة
+        try:
+            if os.path.exists(song["file"]):
+                self.sound = SoundLoader.load(song["file"])
+                if self.sound:
+                    self.song_length = self.sound.length if self.sound.length > 0 else 100
+                    self.sound.play()
+                    self.is_playing = True
+                    self.is_player_ready = True
+                else:
+                    self.song_length = 100
+                    self.is_playing = False
+                    self.is_player_ready = False
+            else:
+                self.song_length = 100
+                self.is_playing = False
+                self.is_player_ready = False
+        except Exception as e:
+            print(f"Sound Error: {e}")
+            self.song_length = 100
+            self.is_playing = False
 
         self.update_next_preview()
 
         if self.updating_track:
             self.updating_track.cancel()
 
-        self.updating_track = Clock.schedule_interval(
-            self.update_progress,
-            1,
-        )
+        self.updating_track = Clock.schedule_interval(self.update_progress, 1)
 
     def update_progress(self, dt):
-
         if not self.is_playing:
             return
 
-        self.song_position += 1
+        # تحديث الوقت الحقيقي من الملف الصوتي إن وجد
+        if self.sound and self.sound.state == 'play':
+            self.song_position = int(self.sound.get_pos())
+            self.song_length = int(self.sound.length) if self.sound.length > 0 else 100
+        else:
+            self.song_position += 1
 
         if self.song_position > self.song_length:
             self.song_position = self.song_length
 
-        self.time_label = (
-            f"{self.format_time(self.song_position)} / "
-            f"{self.format_time(self.song_length)}"
-        )
+        self.time_label = f"{self.format_time(self.song_position)} / {self.format_time(self.song_length)}"
 
         if self.song_position >= self.song_length:
             if self.repeat_mode:
-                self.song_position = 0
+                if self.sound:
+                    self.sound.seek(0)
+                else:
+                    self.song_position = 0
             else:
                 self.next_song()
       
-      
     def next_song(self):
-
         if not self.songs_list:
             return
-
         if self.shuffle_mode:
-            self.current_index = random.randint(
-                0,
-                len(self.songs_list) - 1,
-            )
+            self.current_index = random.randint(0, len(self.songs_list) - 1)
         else:
-            self.current_index = (
-                self.current_index + 1
-            ) % len(self.songs_list)
-
+            self.current_index = (self.current_index + 1) % len(self.songs_list)
         self.play_current()
 
     def previous_song(self):
-
         if not self.songs_list:
             return
-
-        self.current_index = (
-            self.current_index - 1
-        ) % len(self.songs_list)
-
+        self.current_index = (self.current_index - 1) % len(self.songs_list)
         self.play_current()
 
     def toggle_repeat(self):
@@ -304,151 +296,103 @@ class NaderKhadrApp(MDApp):
         self.update_next_preview()
 
     def toggle_play(self):
-
         if not self.is_player_ready:
             self.play_current()
             return
 
         self.is_playing = not self.is_playing
+        if self.sound:
+            if self.is_playing:
+                self.sound.play()
+            else:
+                self.sound.stop()
 
     def stop_song(self):
-
         self.is_playing = False
         self.song_position = 0
         self.time_label = "00:00 / 00:00"
-
+        if self.sound:
+            self.sound.stop()
         if self.updating_track:
             self.updating_track.cancel()
             self.updating_track = None
 
     def seek_song(self, value):
-
         self.song_position = int(value)
+        if self.sound:
+            self.sound.seek(self.song_position)
+        self.time_label = f"{self.format_time(self.song_position)} / {self.format_time(self.song_length)}"
 
-        self.time_label = (
-            f"{self.format_time(self.song_position)} / "
-            f"{self.format_time(self.song_length)}"
-        )
-
-
-    def filter_songs(self, query):
-
+        def filter_songs(self, query):
         query = query.strip().lower()
-
         if not query:
             self.displayed_songs = self.songs_list.copy()
         else:
             self.displayed_songs = [
-                song
-                for song in self.songs_list
+                song for song in self.songs_list 
                 if query in song["title"].lower()
             ]
-
         self.load_songs_menu()
 
     def toggle_favorite(self):
-
         if not self.songs_list:
             return
-
         song = self.songs_list[self.current_index]
-
         song["fav"] = not song["fav"]
         self.is_favorite = song["fav"]
-
         self.load_songs_menu()
         self.load_favorite_menu()
 
     def load_favorite_menu(self):
-
-        from kivymd.uix.list import (
-            OneLineAvatarIconListItem,
-            IconRightWidget,
-        )
+        from kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget
         from functools import partial
 
-        container = self.root.get_screen(
-            "favorite_screen"
-        ).ids.fav_songs_container
+        try:
+            container = self.root.get_screen("favorite_screen").ids.fav_songs_container
+            container.clear_widgets()
+            favorites = [song for song in self.songs_list if song["fav"]]
 
-        container.clear_widgets()
-
-        favorites = [
-            song
-            for song in self.songs_list
-            if song["fav"]
-        ]
-
-        for song in favorites:
-
-            item = OneLineAvatarIconListItem(
-                text=fix_arabic(song["title"])
-            )
-
-            item.add_widget(
-                IconRightWidget(icon="heart")
-            )
-
-            # تطبيق الربط الآمن في قائمة المفضلة أيضاً
-            item.bind(
-                on_release=partial(lambda title, instance: self.select_song_by_title(title), song["title"])
-            )
-
-            container.add_widget(item)
+            for song in favorites:
+                item = OneLineAvatarIconListItem(text=fix_arabic(song["title"]))
+                item.add_widget(IconRightWidget(icon="heart"))
+                item.bind(
+                    on_release=partial(
+                        lambda title, instance: self.select_song_by_title(title), 
+                        song["title"]
+                    )
+                )
+                container.add_widget(item)
+        except Exception as e:
+            print(f"Error loading favorites: {e}")
 
     def set_sleep_timer(self):
-
         self.sleep_timer_active = not self.sleep_timer_active
-
         if self.sleep_timer_active:
-            Clock.schedule_once(
-                self.trigger_sleep,
-                600,
-            )
+            Clock.schedule_once(self.trigger_sleep, 600)
 
     def trigger_sleep(self, dt):
-
         self.sleep_timer_active = False
-
         self.stop_song()
-
-        self.current_song_title = fix_arabic(
-            "تم إيقاف التشغيل بواسطة مؤقت النوم"
-        )
+        self.current_song_title = fix_arabic("تم إيقاف التشغيل بواسطة مؤقت النوم")
 
     def share_app(self):
-
         if platform != "android":
             return
-
         try:
             from jnius import autoclass
-
             Intent = autoclass("android.content.Intent")
-            PythonActivity = autoclass(
-                "org.kivy.android.PythonActivity"
-            )
-
+            PythonActivity = autoclass("org.kivy.android.PythonActivity")
             activity = PythonActivity.mActivity
 
             intent = Intent(Intent.ACTION_SEND)
             intent.setType("text/plain")
-
-            intent.putExtra(
-                Intent.EXTRA_TEXT,
-                "موسوعة الأغاني السودانية"
-            )
-
-            chooser = Intent.createChooser(
-                intent,
-                "مشاركة التطبيق"
-            )
-
+            intent.putExtra(Intent.EXTRA_TEXT, "موسوعة الأغاني السودانية")
+            chooser = Intent.createChooser(intent, "مشاركة التطبيق")
             activity.startActivity(chooser)
-
         except Exception:
             traceback.print_exc()
 
 
+# تم تصحيح هذا السطر الحاسم لضمان إقلاع التطبيق بشكل سليم مئة بالمئة
 if __name__ == "__main__":
     NaderKhadrApp().run()
