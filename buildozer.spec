@@ -1,36 +1,30 @@
 [app]
-
-title = Amo Songs
-package.name = amosongs
-package.domain = org.amosongs
-
+title = Nader Khadr App
+package.name = naderkhadrapp
+package.domain = org.test
 source.dir = .
 source.include_exts = py,png,jpg,kv,mp3
-source.exclude_dirs = tests, test, bin, venv, .buildozer
-version = 1.0
 
+# 🛠️ استبعاد ملفات اللغات غير الضرورية لتسريع البناء
+source.exclude_patterns = lib/python3.11/encodings/iso*, lib/python3.11/encodings/cp12*, lib/python3.11/encodings/euc*, tests/*, test/*
+
+version = 1.0.0
+# 🛠️ ترتيب المتطلبات الصحيح
 requirements = hostpython3==3.11.9,python3==3.11.9,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
-
 orientation = portrait
 fullscreen = 0
 
-icon.filename = icon.png
-presplash.filename = default_poster.png
-
-android.permissions = INTERNET
+# Android specific
 android.api = 33
 android.minapi = 24
-android.ndk = 25
-
-android.archs = arm64-v8a
-
-# أخبر البلويدوزر بتجاهل مجلدات الاختبارات الخاصة ببايثون لتسريع العملية
+# 🛠️ حل مشكلة الـ NDK (تحديد الحد الأدنى المتوافق)
+android.ndk_api = 25
+android.private_storage = True
+p4a.bootstrap = sdl2
+p4a.branch = master
+# 🛠️ منع تجميع ملفات الاختبارات
 android.no_test_compile = 1
 
-android.accept_sdk_license = True
-android.enable_androidx = True
-
-p4a.bootstrap = sdl2
-
+[buildozer]
 log_level = 2
-warn_on_root = 0
+warn_on_root = 1
