@@ -44,11 +44,14 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. تشغيل بناء التطبيق (يتكفل بإنشاء الرخص والموافقة عليها تلقائياً)
+      # 6. تشغيل بناء التطبيق وتمرير الموافقة التلقائية على الرخص عبر الـ Pipeline
       - name: Build with Buildozer
         run: |
-          # تجهيز المجلدات الافتراضية للـ SDK ليقوم Buildozer بالموافقة التلقائية داخلياً
-          mkdir -p ~/.buildozer/android/platform/
+          # إنشاء مجلد الـ SDK الخاص ببيلدوزر مسبقاً لضمان وجود مسار الرخص
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          
+          # قبول كافة الرخص تلقائياً وتمرير 'yes' لكل حزم أندرويد
+          yes | buildozer android licenses || true
           
           export P4A_no_test_compile=1
           export P4A_QUIET=1
