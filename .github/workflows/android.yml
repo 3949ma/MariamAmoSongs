@@ -1,0 +1,45 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Linux packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+          git zip unzip autoconf automake libtool \
+          pkg-config zlib1g-dev libncurses5-dev \
+          libffi-dev libssl-dev cmake
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build APK
+        run: |
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AmoSongs-APK
+          path: bin/*.apk
