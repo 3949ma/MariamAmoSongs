@@ -44,15 +44,14 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. تشغيل البناء مع تفعيل الموافقة التلقائية على الرخص عبر المتغير البيئي الصريح
+      # 6. تشغيل البناء مع تمرير الموافقة المستمرة على الرخص بشكل تفاعلي
       - name: Build with Buildozer
         run: |
-          # هذا المتغير البيئي يكفي تماماً مع API 34 ليتخطى بيلدوزر رخص أندرويد تلقائياً دون أي تدخل أو أدوات خارجية
-          export ANDROID_API_ACCEPT_LICENSES=1
           export P4A_no_test_compile=1
           export P4A_QUIET=1
           
-          buildozer -v android debug
+          # إرسال حرف 'y' تلقائياً طوال فترة عمل buildozer للإجابة بنعم على أي رخصة تظهر
+          yes y | buildozer -v android debug
 
       # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
       - name: Upload APK Artifact
