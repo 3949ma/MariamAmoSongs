@@ -19,8 +19,8 @@ presplash.filename = default_poster.png
 
 android.permissions = INTERNET
 android.api = 33
-android.minapi = 21
-android.ndk = 21
+android.minapi = 24
+android.ndk = 25
 
 android.archs = arm64-v8a
 
