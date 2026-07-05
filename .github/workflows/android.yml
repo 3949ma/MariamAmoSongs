@@ -44,14 +44,33 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. تشغيل البناء مع تمرير الموافقة المستمرة على الرخص بشكل تفاعلي
+      # 6. تشغيل البناء مع تقليص حجم السجل (Logs) لتفادي قطع الخطوة من جيت هاب
       - name: Build with Buildozer
         run: |
-          export P4A_no_test_compile=1
+          # كتم مخرجات python-for-android التفصيلية تماماً
           export P4A_QUIET=1
+          export P4A_no_test_compile=1
           
-          # إرسال حرف 'y' تلقائياً طوال فترة عمل buildozer للإجابة بنعم على أي رخصة تظهر
-          yes y | buildozer -v android debug
+          # تشغيل بيلدوزر بدون خيار الإسهاب وبدون طباعة سطور التجميع المتكررة لملفات بايثون
+          yes y | buildozer android debug > buildozer_output.log 2>&1 &
+          
+          # طباعة نقطة كل 10 ثوانٍ لتعريف جيت هاب أن البناء مستمر دون ملء السجل بالسطور
+          PID=$!
+          echo "البناء بدأ في الخلفية لمنع تضخم السجل..."
+          while kill -0 $PID 2>/dev/null; do
+            echo -n "."
+            sleep 10
+          done
+          
+          # التحقق من حالة الخروج بعد الانتهاء
+          wait $PID
+          STATUS=$?
+          if [ $STATUS -ne 0 ]; then
+            echo "فشل البناء! إليك آخر 100 سطر من السجل لمعرفة السبب الرئيسي:"
+            tail -n 100 buildozer_output.log
+            exit $STATUS
+          fi
+          echo "تم البناء بنجاح وبدون تضخيم السجل!"
 
       # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
       - name: Upload APK Artifact
