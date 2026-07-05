@@ -38,8 +38,12 @@ jobs:
           pip install buildozer cython virtualenv textwrap3
 
       # 4. تشغيل بناء التطبيق مع حظر ملفات الاختبار واللغات الإضافية لتوفير الوقت
+            # 4. تشغيل بناء التطبيق مع قبول التراخيص وحظر ملفات الاختبار
       - name: Build with Buildozer
         run: |
+          # السطر السحري للموافقة التلقائية على كافة تراخيص أندرويد
+          yes | /usr/local/lib/android/sdk/tools/bin/sdkmanager --licenses || true
+          
           export P4A_no_test_compile=1
           export P4A_QUIET=1
           buildozer -v android debug
