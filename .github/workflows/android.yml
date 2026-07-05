@@ -28,6 +28,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | sdkmanager --licenses
+
+
+      
       # 3. تثبيت أدوات التجميع الكاملة وحل مشكلة الماكرو والـ Autotools المفقودة
       - name: Install Buildozer and Toolchain Dependencies
         run: |
@@ -54,3 +60,4 @@ jobs:
         with:
           name: App-Debug-APK
           path: bin/*.apk
+ 
