@@ -9,7 +9,7 @@ source.include_exts = py,png,jpg,kv,mp3
 source.exclude_dirs = tests, test, bin, venv, .buildozer
 version = 1.0
 
-requirements = python3==3.11.9,hostpython3==3.11.9,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
+requirements = hostpython3==3.11.9,python3==3.11.9,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
 
 orientation = portrait
 fullscreen = 0
@@ -19,8 +19,8 @@ presplash.filename = default_poster.png
 
 android.permissions = INTERNET
 android.api = 33
-android.minapi = 24
-android.ndk = 25b
+android.minapi = 21
+android.ndk = 21
 
 android.archs = arm64-v8a
 
