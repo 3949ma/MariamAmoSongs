@@ -44,14 +44,21 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. تشغيل بناء التطبيق مع فرض الموافقة التلقائية على الرخص عبر المتغيرات البيئية
+      # 6. تشغيل بناء التطبيق مع الموافقة المسبقة على رخص أندرويد
       - name: Build with Buildozer
         run: |
-          # المتغيرات البيئية أدناه تجبر الـ SDK على الموافقة التلقائية دون التوقف لطلب مدخلات (y/n)
-          export android_api_accept_licenses=1
+          # 1. الموافقة تلقائياً على كافة رخص أندرويد المتوفرة في نظام جيت هاب
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          
+          # 2. نسخ الرخص المعتمدة إلى مسار مجلد بيلدوزر ليتعرف عليها تلقائياً أثناء تحميل الأدوات
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          if [ -d "$ANDROID_HOME/licenses" ]; then
+            cp -r $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/
+          fi
+
+          # 3. تشغيل عملية البناء
           export P4A_no_test_compile=1
           export P4A_QUIET=1
-          
           buildozer -v android debug
 
       # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
