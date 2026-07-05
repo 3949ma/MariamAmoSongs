@@ -10,54 +10,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. جلب الكود من المستودع
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. تنظيف مساحة القرص بالكامل لتفادي نفاد الذاكرة في حاوية الخادم
+      # 2. تنظيف مساحة القرص لتفادي نفاد الذاكرة (مع الإبقاء على جافا وأدوات النظام الأساسية)
       - name: Free Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-      # 2. تهيئة إصدار بايثون الخاص بنظام التجميع الرئيسي
+      # 3. تهيئة إصدار بايثون المطلوب للتجميع
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Accept Android SDK Licenses
-        run: |
-          yes | sdkmanager --licenses
+      # 4. تثبيت جافا (مهم جداً لتشغيل أندرويد و Buildozer)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-
-      
-      # 3. تثبيت أدوات التجميع الكاملة وحل مشكلة الماكرو والـ Autotools المفقودة
+      # 5. تثبيت الاعتمادات وأدوات التجميع الكاملة
       - name: Install Buildozer and Toolchain Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config libltdl-dev
+          sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev autoconf automake libtool pkg-config libltdl-dev zipped openjdk-17-jdk
           pip install --upgrade pip
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 4. تشغيل بناء التطبيق مع حظر ملفات الاختبار واللغات الإضافية لتوفير الوقت
-            # 4. تشغيل بناء التطبيق مع قبول التراخيص وحظر ملفات الاختبار
+      # 6. تشغيل بناء التطبيق (يتكفل بإنشاء الرخص والموافقة عليها تلقائياً)
       - name: Build with Buildozer
         run: |
-          # السطر السحري للموافقة التلقائية على كافة تراخيص أندرويد
-          yes | /usr/local/lib/android/sdk/tools/bin/sdkmanager --licenses || true
+          # تجهيز المجلدات الافتراضية للـ SDK ليقوم Buildozer بالموافقة التلقائية داخلياً
+          mkdir -p ~/.buildozer/android/platform/
           
           export P4A_no_test_compile=1
           export P4A_QUIET=1
           buildozer -v android debug
 
-      # 5. تصدير ملف الـ APK النهائي وحفظه في الموقع لتتمكن من تحميله مباشرة
+      # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: App-Debug-APK
           path: bin/*.apk
- 
