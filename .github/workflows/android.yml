@@ -44,30 +44,18 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. تشغيل البناء في الخلفية بشكل صحيح (بدون Broken Pipe)
+      # 6. تشغيل البناء المباشر وإظهار الخطأ الحقيقي
       - name: Build with Buildozer
         run: |
-          export P4A_QUIET=1
-          export P4A_no_test_compile=1
+          # 1. قبول تراخيص الـ Android SDK تلقائياً قبل بدء البناء
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           
-          # تشغيل البناء وتوجيه المدخلات والمخرجات بشكل آمن
-          buildozer android debug < /dev/null > buildozer_output.log 2>&1 &
-          PID=$!
-          
-          echo "البناء بدأ في الخلفية..."
-          while kill -0 $PID 2>/dev/null; do
-            echo -n "."
-            sleep 15
-          done
-          
-          wait $PID
-          STATUS=$?
-          if [ $STATUS -ne 0 ]; then
-            echo -e "\n[خطأ] فشل البناء! إليك السطور الأخيرة من السجل لمعرفة السبب الحقيقي:"
-            tail -n 150 buildozer_output.log
-            exit $STATUS
-          fi
-          echo -e "\nتم البناء بنجاح!"
+          # 2. تشغيل بيلدوزر بشكل مباشر ودون كتم المخرجات
+          # هذا سيجعلنا نرى السطر الفعلي المسبب للمشكلة فوراً
+          yes | buildozer android debug
+
 
       # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
       - name: Upload APK Artifact
