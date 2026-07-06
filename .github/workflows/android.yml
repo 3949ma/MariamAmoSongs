@@ -44,25 +44,36 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-            # 6. تشغيل البناء مع تقييد استهلاك الذاكرة ومنع قتل العملية
+                  # 6. تهيئة مسارات أندرويد الحديثة وبدء التجميع
       - name: Build with Buildozer
         run: |
-                # 6. الموافقة الجبرية على تراخيص Buildozer وبدء التجميع
-      - name: Build with Buildozer
-        run: |
-          # 1. إنشاء مجلد التراخيص الخاص بـ Buildozer مسبقاً في النظام
+          # 1. إنشاء المجلدات الأساسية التي تتوقعها بيلدوزر لـ SDK
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           
-          # 2. زرع الهاشات الرقمية الرسمية لتراخيص أندرويد (تخطي شاشة الموافقة تماماً)
-          echo -e "\n893a5cd8a1e50711915911b413901a09654d7b96\nd56f5187479451eabf01fb7431302533134d3410\ncc4eae120a44fa60c05fe3a4d4b953555da4c675" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+          # 2. تحميل أدوات السطر البرمجي الرسمية والمستقرة من جوجل لـ Android
+          cd ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          wget https://google.com
+          unzip -q commandlinetools-linux-9477386_latest.zip
+          mv cmdline-tools latest
+          rm commandlinetools-linux-9477386_latest.zip
           
-          # 3. إجبار النظام على استخدام نواة واحدة لحماية الذاكرة العشوائية من الامتلاء
+          # 3. عمل رابط رمزي (Symlink) لخدع بيلدوزر إذا بحثت في المسار القديم "tools"
+          cd ~/.buildozer/android/platform/android-sdk
+          ln -s cmdline-tools/latest tools
+          
+          # 4. زرع التراخيص لعدم التوقف لطلب موافقة
+          echo -e "\n893a5cd8a1e50711915911b413901a09654d7b96\nd56f5187479451eabf01fb7431302533134d3410\ncc4eae120a44fa60c05fe3a4d4b953555da4c675" > licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > licenses/android-sdk-preview-license
+          
+          # 5. تقييد الموارد لحماية الذاكرة العشوائية من الامتلاء
           export MAKEFLAGS="-j1"
           export NUM_CORES=1
           
-          # 4. تشغيل التجميع مباشرة
+          # 6. العودة لمجلد المشروع وتشغيل البناء
+          cd $GITHUB_WORKSPACE
           buildozer android debug
+
 
 
 
