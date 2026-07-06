@@ -17,8 +17,8 @@ fullscreen = 0
 
 # Android specific
 # 🛠️ تحديث لـ 34 ليتوافق مع متطلبات جوجل بلاي الحديثة ويصلح مسارات الـ SDK تلقائياً
-android.api = 34
-android.minapi = 24
+android.api = 33
+android.minapi = 21
 # 🛠️ حل مشكلة الـ NDK (تحديد الحد الأدنى المتوافق)
 android.ndk_api = 25
 android.private_storage = True
