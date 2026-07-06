@@ -25,8 +25,6 @@ android.permissions = INTERNET,WAKE_LOCK
 
 android.accept_sdk_license = True
 
-p4a.branch = master
-
 log_level = 2
 warn_on_root = 1
 
