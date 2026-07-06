@@ -50,7 +50,7 @@ android.permissions = INTERNET, WAKE_LOCK
 android.accept_sdk_license = True
 
 # (int) Log level (1 = error/warning only, 2 = stdout/stderr with info)
-log_level = 1
+log_level = 2
 
 # (int) Warn if buildozer is run as root
 warn_on_root = 1
@@ -59,7 +59,7 @@ warn_on_root = 1
 [buildozer]
 
 # (int) Log level (1 = error/warning only, 2 = stdout/stderr with info)
-log_level = 1
+log_level = 2
 
 # (int) Warn if buildozer is run as root
 warn_on_root = 1
