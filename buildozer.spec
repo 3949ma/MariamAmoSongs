@@ -8,9 +8,10 @@ source.include_exts = py,png,jpg,kv,mp3
 # 🛠️ استبعاد ملفات اللغات غير الضرورية لتسريع البناء
 source.exclude_patterns = lib/python3.11/encodings/iso*, lib/python3.11/encodings/cp12*, lib/python3.11/encodings/euc*, tests/*, test/*
 
-version = 1.0.0
+version = 1.1
 # 🛠️ ترتيب المتطلبات الصحيح
-requirements = hostpython3==3.11.9,python3==3.11.9,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
+
 orientation = portrait
 fullscreen = 0
 
