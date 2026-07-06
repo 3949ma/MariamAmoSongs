@@ -1,3 +1,5 @@
+[app]
+
 title = أغاني مريم أمو
 
 package.name = amosongs
@@ -24,6 +26,12 @@ android.permissions = INTERNET,WAKE_LOCK
 android.accept_sdk_license = True
 
 p4a.branch = master
+
+log_level = 2
+warn_on_root = 1
+
+
+[buildozer]
 
 log_level = 2
 warn_on_root = 1
