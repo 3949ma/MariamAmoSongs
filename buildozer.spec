@@ -36,8 +36,7 @@ android.minapi = 23
 # (string) Android NDK version to use
 android.ndk = 25b
 
-# (list) Application requirements
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,arabic-reshaper,python-bidi,pyjnius
+requirements = python3, kivy, kivymd, pillow, arabic-reshaper, python-bidi, pyjnius
 
 # (list) Supported architectures
 android.archs = arm64-v8a, armeabi-v7a
