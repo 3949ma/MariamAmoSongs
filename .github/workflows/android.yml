@@ -9,21 +9,55 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build with Buildozer Action
-        uses: ArtemShatalov/buildozer-action@v1
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          buildozer_version: 'stable'
-          command: 'buildozer android debug'
-          repository_root: '.'
+          python-version: "3.11"
 
-      - name: Upload APK Artifact
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip \
+            openjdk-17-jdk \
+            autoconf automake libtool \
+            pkg-config \
+            zlib1g-dev \
+            libncurses5-dev \
+            libncursesw5-dev \
+            libtinfo5 \
+            cmake \
+            libffi-dev \
+            libssl-dev \
+            build-essential
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install Cython==0.29.37
+          pip install buildozer==1.5.0
+
+      - name: Build Debug APK
+        env:
+          BUILDOZER_WARN_ON_ROOT: 0
+        run: |
+          buildozer android debug
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: MariamAmoSongs-APK
           path: bin/*.apk
