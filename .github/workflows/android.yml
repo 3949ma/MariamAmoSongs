@@ -44,17 +44,22 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install buildozer cython virtualenv textwrap3
 
-      # 6. تشغيل البناء المباشر وإظهار الخطأ الحقيقي
+            # 6. تشغيل البناء مع تقييد استهلاك الذاكرة ومنع قتل العملية
       - name: Build with Buildozer
         run: |
-          # 1. قبول تراخيص الـ Android SDK تلقائياً قبل بدء البناء
+          # قبول التراخيص مسبقاً
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           
-          # 2. تشغيل بيلدوزر بشكل مباشر ودون كتم المخرجات
-          # هذا سيجعلنا نرى السطر الفعلي المسبب للمشكلة فوراً
-          yes | buildozer android debug
+          # 💡 الحل السحري: إجبار نظام التجميع على استخدام نواة واحدة (Worker 1)
+          # هذا يمنع التجميع المتوازي الذي يستهلك الذاكرة بالكامل ويتسبب في قتل السيرفر
+          export MAKEFLAGS="-j1"
+          export NUM_CORES=1
+          
+          # تشغيل بيلدوزر مع مستوى سجل متوسط لتجنب امتلاء حجم السجل وقطعه
+          buildozer android debug
+
 
 
       # 7. تصدير ملف الـ APK النهائي وحفظه للتحميل
