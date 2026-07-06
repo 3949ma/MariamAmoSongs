@@ -13,7 +13,7 @@ package.domain = org.mahdi
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-requirements = python3, kivy==2.3.0, https://github.com, pillow, arabic-reshaper, python-bidi, pyjnius, materialyoucolor
+requirements = python3, kivy, kivymd, pillow, arabic-reshaper, python-bidi, pyjnius, materialyoucolor
 
 # (list) List of exclusions using pattern matching
 source.exclude_patterns = license, README.md, *.pyc, **/test/**, **/tests/**, **/unittest/**
@@ -54,7 +54,7 @@ warn_on_root = 1
 [buildozer]
 
 # (int) Log level (1 = error/warning only, 2 = stdout/stderr with info)
-log_level = 2
+log_level = 1
 
 # (int) Warn if buildozer is run as root
 warn_on_root = 1
