@@ -47,17 +47,21 @@ jobs:
             # 6. تشغيل البناء مع تقييد استهلاك الذاكرة ومنع قتل العملية
       - name: Build with Buildozer
         run: |
-          # قبول التراخيص مسبقاً
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+                # 6. الموافقة الجبرية على تراخيص Buildozer وبدء التجميع
+      - name: Build with Buildozer
+        run: |
+          # 1. إنشاء مجلد التراخيص الخاص بـ Buildozer مسبقاً في النظام
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           
-          # 💡 الحل السحري: إجبار نظام التجميع على استخدام نواة واحدة (Worker 1)
-          # هذا يمنع التجميع المتوازي الذي يستهلك الذاكرة بالكامل ويتسبب في قتل السيرفر
+          # 2. زرع الهاشات الرقمية الرسمية لتراخيص أندرويد (تخطي شاشة الموافقة تماماً)
+          echo -e "\n893a5cd8a1e50711915911b413901a09654d7b96\nd56f5187479451eabf01fb7431302533134d3410\ncc4eae120a44fa60c05fe3a4d4b953555da4c675" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+          
+          # 3. إجبار النظام على استخدام نواة واحدة لحماية الذاكرة العشوائية من الامتلاء
           export MAKEFLAGS="-j1"
           export NUM_CORES=1
           
-          # تشغيل بيلدوزر مع مستوى سجل متوسط لتجنب امتلاء حجم السجل وقطعه
+          # 4. تشغيل التجميع مباشرة
           buildozer android debug
 
 
