@@ -7,7 +7,7 @@ title = أغاني مريم أمو
 package.name = amosongs
 
 # (string) Package domain (needed for android packaging)
-package.domain = org.nahdi
+package.domain = org.mahdi
 
 # (string) Source code where the main.py lives
 source.dir = .
@@ -28,13 +28,15 @@ orientation = portrait
 fullscreen = 0
 
 # (int) Target Android API
-android.api = 34
+android.api = 33
 
 # (int) Minimum API your APK will support
 android.minapi = 23
 
 # (string) Android NDK version to use
 android.ndk = 25b
+
+android.ndk_api = 21
 
 requirements = python3, kivy, kivymd, pillow, arabic-reshaper, python-bidi, pyjnius
 
