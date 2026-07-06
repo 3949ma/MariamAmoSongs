@@ -13,7 +13,7 @@ package.domain = org.mahdi
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-requirements = python3, kivy, kivymd, pillow, arabic-reshaper, python-bidi, pyjnius, materialyoucolor
+requirements = python3, kivy==2.3.0, kivymd==1.1.1, pillow, arabic-reshaper, python-bidi, pyjnius
 
 # (list) List of exclusions using pattern matching
 source.exclude_patterns = license, README.md, *.pyc, **/test/**, **/tests/**, **/unittest/**
