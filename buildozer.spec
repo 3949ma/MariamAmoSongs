@@ -38,8 +38,6 @@ android.ndk = 25b
 
 android.ndk_api = 21
 
-requirements = python3, kivy, kivymd, pillow, arabic-reshaper, python-bidi, pyjnius
-
 # (list) Supported architectures
 android.archs = arm64-v8a
 
